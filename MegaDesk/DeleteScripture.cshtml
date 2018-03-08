@@ -1,0 +1,17 @@
+﻿@{
+    int id = -1;
+    try
+    {
+        id = int.Parse(Request.QueryString["id"]);
+    }
+    catch (Exception ex)
+    {
+        Response.Redirect("~/MsgPage.cshtml?msg=Unable to delete&url=/");
+    }
+
+    var db = Database.Open("MegaDeskData");
+    var query = "DELETE FROM Scriptures WHERE id = @0";
+    db.Execute(query, id);
+
+    Response.Redirect("~/MsgPage.cshtml?msg=Scripture entry deleted!&url=/");
+}

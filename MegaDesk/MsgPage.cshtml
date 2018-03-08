@@ -1,0 +1,23 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Message</title>
+
+    @RenderPage("~/Shared/HeaderHead.cshtml")
+</head>
+<body>
+    <div class="row justify-content-center align-items-center" style="height: 80vh;">
+        <div class="col col-lg-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Message</h5>
+                    <p class="card-text">
+                        @Request["msg"]
+                    </p>
+                    <a href="@Request["url"]" class="btn btn-primary btn-block">OK</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

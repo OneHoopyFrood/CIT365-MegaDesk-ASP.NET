@@ -1,0 +1,137 @@
+﻿@{ 
+    bool error = false;
+
+    Validation.RequireField("book", "You must enter a book");
+    Validation.RequireField("chapter", "You must enter a chapter");
+    Validation.RequireField("verse", "You must enter a verse");
+
+    int id = -1;
+    string book = "";
+    int chapter = 0;
+    string verse = "";
+    string note = "";
+
+    try
+    {
+        id = int.Parse(Request.QueryString["id"]);
+    }
+    catch
+    {
+        Response.Redirect("~/MsgPage.cshtml?msg=Invalid ID&url=/");
+    }
+
+    if (IsPost)
+    {
+        if (Validation.IsValid())
+        {
+            book = Request.Form["book"];
+            chapter = int.Parse(Request.Form["chapter"]);
+            verse = Request.Form["verse"];
+            note = Request.Form["note"];
+
+            var db = Database.Open("MegaDeskData");
+            var insertCommand = "UPDATE Scriptures " +
+                                "SET book = @0" +
+                                "  , chapter = @1" +
+                                "  , verse = @2" +
+                                "  , note = @3" +
+                                " WHERE id = @4";
+            db.Execute(insertCommand, book, chapter, verse, note, id);
+
+            Response.Redirect("~/MsgPage.cshtml?msg=Save Successful!&url=/");
+        }
+        else
+        {
+            error = true;
+        }
+    } else
+    {
+        var db = Database.Open("MegaDeskData");
+        var query = "SELECT * FROM Scriptures WHERE id = @0";
+        var result = db.QuerySingle(query, id);
+
+        book = result["book"];
+        chapter = result["chapter"];
+        verse = result["verse"];
+        note = result["note"];
+    }
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Scripture</title>
+
+    @RenderPage("~/Shared/HeaderHead.cshtml")
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <header class="col col-lg-6">
+                <h1>Add a Scripture</h1>
+            </header>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col col-lg-6">
+                @if (error)
+                {
+                    <div class="alert alert-danger">Error! Something went wrong while saving your new scripture entry.</div>
+                }
+
+                <form method="POST" class="add-scripture-form">
+                    <div class="form-group">
+                        <label>Book</label>
+                        @* Normally, I'd make this a select and have a table with all the books, but that seems overkill for this assignment *@
+                        <input class="form-control" type="text" name="book" value="@book" maxlength="256" />
+                        <small class="form-text text-danger">@Html.ValidationMessage("book")</small>
+                    </div>
+                    <div class="form-group">
+                        <label>Chapter</label>
+                        <input class="form-control" type="number" name="chapter" value="@chapter" />
+                        <small class="form-text text-danger">@Html.ValidationMessage("chapter")</small>
+                    </div>
+                    <div class="form-group">
+                        <label>Verse(s)</label>
+                        <input class="form-control" type="text" name="verse" value="@verse" maxlength="8" />
+                        <small class="form-text text-danger">@Html.ValidationMessage("verse")</small>
+                    </div>
+                    <div class="form-group">
+                        <label>Note</label>
+                        <textarea name="note" cols="30" rows="4" maxlength="500" class="form-control">@note</textarea>
+                        <div class="row">
+                            <div class="col"><small class="form-text text-muted">Limit <span id="base-val">??</span> charecters</small></div>
+                            <div class="col"><small class="form-text text-muted text-right" id="used-char"></small></div>
+                        </div>
+                    </div>
+                    <div class="form-group"><button type="submit" class="btn btn-primary btn-block">Save</button></div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    (function () {
+        let textarea = document.querySelector("textarea[name='note']");
+        let charCount = document.getElementById("used-char");
+        let baseVal = textarea.maxLength;
+        function updateCharCount() {
+            let newVal = textarea.textLength;
+            charCount.innerText = newVal + "/" + baseVal;
+
+            // Colors!
+            charCount.classList.remove("text-warning", "text-danger", "text-muted");
+            if (newVal / baseVal > .9) {
+                charCount.classList.add("text-danger")
+            } else if (newVal / baseVal > .75) {
+                charCount.classList.add("text-warning")
+            } else {
+                charCount.classList.add("text-muted")
+            }
+        }
+        textarea.addEventListener("input", updateCharCount);
+        updateCharCount();
+        document.getElementById("base-val").innerText = baseVal;
+    })();
+    </script>
+</body>
+</html>

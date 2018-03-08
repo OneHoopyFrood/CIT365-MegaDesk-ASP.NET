@@ -1,0 +1,107 @@
+﻿@{
+    var searchTerm = Request.Form["search_book"];
+    var searchSource = "book";
+    if (searchTerm.IsEmpty())
+    {
+        searchTerm = Request.Form["search_keyword"];
+        searchSource = "note";
+
+    }
+
+    var db = Database.Open("MegaDeskData");
+    var queryStr = "SELECT id" +
+                "     , book + ' ' + CAST(chapter AS NVARCHAR(10)) + ':' + verse AS reference" +
+                "     , note, date_added as \"Date Added\" " +
+                "FROM Scriptures ";
+    if (!searchTerm.IsEmpty()) {
+        queryStr += "WHERE " + searchSource + " LIKE @0";
+    }
+    queryStr += " ORDER BY date_added DESC";
+
+    var selectedData = db.Query(queryStr, "%" + searchTerm + "%");
+    var grid = new WebGrid(source: selectedData, rowsPerPage: 5);
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Scriptures</title>
+
+    @RenderPage("~/Shared/HeaderHead.cshtml")
+</head>
+<body>
+    <div class="container">
+        <div class="row">
+            <header class="col text-center">
+                <h1>My Scriptures</h1> <img src="~/fair-use-scripture-icon.png" alt="" />
+            </header>
+        </div>
+        <div class="row search">
+            <div class="col">
+                <form method="post">
+                    <div class="input-group">
+                        <input type="text" name="search_book"
+                               value="@Request.Form["search_book"]"
+                                class="form-control" placeholder="Search by Book" />
+                        <div class="input-group-append">
+                            <button type="submit" class="btn btn-secondary">
+                                <i class="fas fa-book"></i>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="col">
+                <form method="post">
+                    <div class="input-group">
+                        <input type="text" name="search_keyword"
+                               value="@Request.Form["search_keyword"]"
+                                class="form-control" placeholder="Search by Keyword" />
+                        <div class="input-group-append">
+                            <button type="submit" class="btn btn-secondary">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                @grid.GetHtml(
+                     tableStyle: "table scriptures",
+                     columns: grid.Columns(
+                         grid.Column(format: @<a href="~/EditScripture?id=@item.id"><i class="far fa-edit text-warning"></i></a>),
+                         grid.Column(columnName: "Reference"), // The way I figure, sorting by the full reference is better than just book alone, right?
+                         grid.Column(columnName: "Note", canSort: false),
+                         grid.Column(columnName: "Date Added", format: (item) => string.Format("{0:MMM dd, yyyy}", item["Date Added"])),
+                         grid.Column(format: @<a class="delete-link" href="~/DeleteScripture?id=@item.id"><i class="far fa-trash-alt text-danger"></i></a>)
+                     ),
+                     footerStyle: "pager",
+                     nextText: "Next",
+                     previousText: "Prev"
+                 )
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <a href="~/AddScripture.cshtml" class="btn btn-success btn-block">
+                    <i class="fas fa-plus-circle"></i> Add Scripture
+                </a>
+            </div>
+        </div>
+    </div>
+    <script>
+        (function () {
+            var delBtns = document.querySelectorAll(".delete-link");
+            delBtns.forEach(function (btn) {
+                btn.addEventListener("click", confirmDelete, false);
+            })
+
+            function confirmDelete(e) {
+                if (!window.confirm('Are you sure you want to delete this?')) e.preventDefault();
+            }
+        })();
+    </script>
+</body>
+</html>
