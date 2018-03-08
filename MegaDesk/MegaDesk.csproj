@@ -134,8 +134,8 @@
     <Content Include="css\webfonts\fa-brands-400.svg" />
     <Content Include="css\webfonts\fa-regular-400.svg" />
     <Content Include="css\webfonts\fa-solid-900.svg" />
-    <Content Include="fair-use-scripture-icon.png" />
     <Content Include="favicon.ico" />
+    <Content Include="MegaDesk.png" />
     <Content Include="Web.config" />
     <Content Include="Shared\HeaderHead.cshtml" />
     <None Include="_bin_deployableAssemblies\x86\sqlcese40.dll" />

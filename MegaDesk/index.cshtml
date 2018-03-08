@@ -25,7 +25,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>My Scriptures</title>
+    <title>Mega Desk</title>
 
     @RenderPage("~/Shared/HeaderHead.cshtml")
 </head>
@@ -33,7 +33,7 @@
     <div class="container">
         <div class="row">
             <header class="col text-center">
-                <h1>My Scriptures</h1> <img src="~/fair-use-scripture-icon.png" alt="" />
+                <h1>Mega Desk</h1> <img src="~/MegaDesk.png" alt="" />
             </header>
         </div>
         <div class="row search">
@@ -42,21 +42,7 @@
                     <div class="input-group">
                         <input type="text" name="search_book"
                                value="@Request.Form["search_book"]"
-                                class="form-control" placeholder="Search by Book" />
-                        <div class="input-group-append">
-                            <button type="submit" class="btn btn-secondary">
-                                <i class="fas fa-book"></i>
-                            </button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <div class="col">
-                <form method="post">
-                    <div class="input-group">
-                        <input type="text" name="search_keyword"
-                               value="@Request.Form["search_keyword"]"
-                                class="form-control" placeholder="Search by Keyword" />
+                                class="form-control" placeholder="Search" />
                         <div class="input-group-append">
                             <button type="submit" class="btn btn-secondary">
                                 <i class="fas fa-search"></i>
@@ -71,10 +57,10 @@
                 @grid.GetHtml(
                      tableStyle: "table scriptures",
                      columns: grid.Columns(
-                         grid.Column(format: @<a href="~/EditScripture?id=@item.id"><i class="far fa-edit text-warning"></i></a>),
                          grid.Column(columnName: "Reference"), // The way I figure, sorting by the full reference is better than just book alone, right?
                          grid.Column(columnName: "Note", canSort: false),
                          grid.Column(columnName: "Date Added", format: (item) => string.Format("{0:MMM dd, yyyy}", item["Date Added"])),
+                         grid.Column(format: @<a href="~/EditScripture?id=@item.id"><i class="far fa-edit text-warning"></i></a>),
                          grid.Column(format: @<a class="delete-link" href="~/DeleteScripture?id=@item.id"><i class="far fa-trash-alt text-danger"></i></a>)
                      ),
                      footerStyle: "pager",
@@ -86,7 +72,7 @@
         <div class="row">
             <div class="col">
                 <a href="~/AddScripture.cshtml" class="btn btn-success btn-block">
-                    <i class="fas fa-plus-circle"></i> Add Scripture
+                    <i class="fas fa-plus-circle"></i> Add Quote
                 </a>
             </div>
         </div>
