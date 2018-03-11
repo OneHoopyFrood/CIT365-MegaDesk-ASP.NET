@@ -43,38 +43,7 @@
         </div>
         <div class="row justify-content-center">
             <div class="col col-lg-6">
-                @if (error)
-                {
-                    <div class="alert alert-danger">Error! Something went wrong while saving your new scripture entry.</div>
-                }
-
-                <form method="POST" class="add-scripture-form">
-                    <div class="form-group">
-                        <label>Book</label>
-                        @* Normally, I'd make this a select and have a table with all the books, but that seems overkill for this assignment *@
-                        <input class="form-control" type="text" name="book" value="@Request.Form["book"]" maxlength="256" />
-                        <small class="form-text text-danger">@Html.ValidationMessage("book")</small>
-                    </div>
-                    <div class="form-group">
-                        <label>Chapter</label>
-                        <input class="form-control" type="number" name="chapter" value="@Request.Form["chapter"]" />
-                        <small class="form-text text-danger">@Html.ValidationMessage("chapter")</small>
-                    </div>
-                    <div class="form-group">
-                        <label>Verse(s)</label>
-                        <input class="form-control" type="text" name="verse" value="@Request.Form["verse"]" maxlength="8" />
-                        <small class="form-text text-danger">@Html.ValidationMessage("verse")</small>
-                    </div>
-                    <div class="form-group">
-                        <label>Note</label>
-                        <textarea name="note" cols="30" rows="4" maxlength="500" class="form-control">@Request.Form["note"]</textarea>
-                        <div class="row">
-                            <div class="col"><small class="form-text text-muted">Limit <span id="base-val">??</span> charecters</small></div>
-                            <div class="col"><small class="form-text text-muted text-right" id="used-char"></small></div>
-                        </div>
-                    </div>
-                    <div class="form-group"><button type="submit" class="btn btn-primary btn-block">Save</button></div>
-                </form>
+                @RenderPage("~/Shared/QuoteForm.cshtml");
             </div>
         </div>
     </div>

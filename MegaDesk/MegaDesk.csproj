@@ -111,12 +111,16 @@
     <Content Include="css\webfonts\fa-solid-900.ttf" />
     <Content Include="css\webfonts\fa-solid-900.woff" />
     <Content Include="css\webfonts\fa-solid-900.woff2" />
-    <Content Include="AddScripture.cshtml" />
-    <Content Include="DeleteScripture.cshtml" />
+    <Content Include="AddQuote.cshtml" />
+    <Content Include="DeleteQuote.cshtml" />
     <Content Include="EditScripture.cshtml" />
     <Content Include="index.cshtml" />
+    <Content Include="js\Index.js" />
+    <Content Include="js\QuoteForm.js" />
     <Content Include="MsgPage.cshtml" />
     <None Include="packages.config" />
+    <Content Include="ViewQuote.cshtml" />
+    <Content Include="Shared\QuoteForm.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -157,6 +161,8 @@
     <None Include="_bin_deployableAssemblies\x86\Microsoft.VC90.CRT\Microsoft.VC90.CRT.manifest" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Desk.cs" />
+    <Compile Include="DeskQuote.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

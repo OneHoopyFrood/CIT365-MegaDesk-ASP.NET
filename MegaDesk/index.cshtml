@@ -1,22 +1,25 @@
-﻿@{
-    var searchTerm = Request.Form["search_book"];
-    var searchSource = "book";
+﻿@using MegaDesk;
+@{
+    var searchTerm = Request.Form["search"];
     if (searchTerm.IsEmpty())
     {
-        searchTerm = Request.Form["search_keyword"];
-        searchSource = "note";
+        searchTerm = Request.Form["search"];
 
     }
 
     var db = Database.Open("MegaDeskData");
     var queryStr = "SELECT id" +
-                "     , book + ' ' + CAST(chapter AS NVARCHAR(10)) + ':' + verse AS reference" +
-                "     , note, date_added as \"Date Added\" " +
-                "FROM Scriptures ";
-    if (!searchTerm.IsEmpty()) {
-        queryStr += "WHERE " + searchSource + " LIKE @0";
+                    "    , customer_name AS \"Customer\"" +
+                    "    , material" +
+                    "    , quote_amount " +
+                    "    , CAST(CASE WHEN production_days < 14 THEN 1 ELSE 0 END AS bit) AS \"Rush Order\" " +
+                    "    , quote_date " +
+                    "FROM DeskQuotes ";
+    if (!searchTerm.IsEmpty())
+    {
+        queryStr += "WHERE customer_name LIKE @0 ";
     }
-    queryStr += " ORDER BY date_added DESC";
+    queryStr += "ORDER BY quote_date DESC";
 
     var selectedData = db.Query(queryStr, "%" + searchTerm + "%");
     var grid = new WebGrid(source: selectedData, rowsPerPage: 5);
@@ -40,9 +43,9 @@
             <div class="col">
                 <form method="post">
                     <div class="input-group">
-                        <input type="text" name="search_book"
-                               value="@Request.Form["search_book"]"
-                                class="form-control" placeholder="Search" />
+                        <input type="text" name="search"
+                               value="@Request.Form["search"]"
+                               class="form-control" placeholder="Search" />
                         <div class="input-group-append">
                             <button type="submit" class="btn btn-secondary">
                                 <i class="fas fa-search"></i>
@@ -55,39 +58,30 @@
         <div class="row">
             <div class="col">
                 @grid.GetHtml(
-                     tableStyle: "table scriptures",
-                     columns: grid.Columns(
-                         grid.Column(columnName: "Reference"), // The way I figure, sorting by the full reference is better than just book alone, right?
-                         grid.Column(columnName: "Note", canSort: false),
-                         grid.Column(columnName: "Date Added", format: (item) => string.Format("{0:MMM dd, yyyy}", item["Date Added"])),
-                         grid.Column(format: @<a href="~/EditScripture?id=@item.id"><i class="far fa-edit text-warning"></i></a>),
-                         grid.Column(format: @<a class="delete-link" href="~/DeleteScripture?id=@item.id"><i class="far fa-trash-alt text-danger"></i></a>)
-                     ),
-                     footerStyle: "pager",
-                     nextText: "Next",
-                     previousText: "Prev"
-                 )
+                    tableStyle: "table table-hover quotes",
+                    columns: grid.Columns(
+                        grid.Column(format: @<input type="hidden" name="IDHidden" value="@item["id"]"/>),
+                        grid.Column(format: @<a href="~/EditQuote?id=@item.id"><i class="far fa-edit text-warning"></i></a>, canSort: false),
+                        grid.Column(columnName: "Customer"),
+                        grid.Column(columnName: "Material", format: (item) => (Desk.DeskMaterial)item["material"]),
+                        grid.Column(columnName: "Price", format: (item) => item["quote_amount"].ToString("C")),
+                        grid.Column(columnName: "Date Quoted", format: (item) => string.Format("{0:MMM dd, yyyy}", item["quote_date"])),
+                        grid.Column(format: @<a class="delete-link" href="~/DeleteQuote?id=@item.id"><i class="far fa-trash-alt text-danger"></i></a>, canSort: false)
+                 ),
+                 footerStyle: "pager",
+                 nextText: "Next",
+                 previousText: "Prev"
+             )
             </div>
         </div>
         <div class="row">
             <div class="col">
-                <a href="~/AddScripture.cshtml" class="btn btn-success btn-block">
+                <a href="~/AddQuote.cshtml" class="btn btn-success btn-block">
                     <i class="fas fa-plus-circle"></i> Add Quote
                 </a>
             </div>
         </div>
     </div>
-    <script>
-        (function () {
-            var delBtns = document.querySelectorAll(".delete-link");
-            delBtns.forEach(function (btn) {
-                btn.addEventListener("click", confirmDelete, false);
-            })
-
-            function confirmDelete(e) {
-                if (!window.confirm('Are you sure you want to delete this?')) e.preventDefault();
-            }
-        })();
-    </script>
+    <script src="~/js/Index.js"></script>
 </body>
 </html>
