@@ -1,1 +1,5 @@
 .vs
+packages/
+MyScriptureJournal/_bin_deployableAssemblies
+MyScriptureJournal/bin
+MyScriptureJournal/obj
