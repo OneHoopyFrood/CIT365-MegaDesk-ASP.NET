@@ -1,12 +1,6 @@
 ﻿@using MegaDesk;
 @{
-    var searchTerm = Request.Form["search"];
-    if (searchTerm.IsEmpty())
-    {
-        searchTerm = Request.Form["search"];
-
-    }
-
+    string param = "";
     var db = Database.Open("MegaDeskData");
     var queryStr = "SELECT id" +
                     "    , customer_name AS \"Customer\"" +
@@ -15,15 +9,32 @@
                     "    , CAST(CASE WHEN production_days < 14 THEN 1 ELSE 0 END AS bit) AS \"Rush Order\" " +
                     "    , quote_date " +
                     "FROM DeskQuotes ";
-    if (!searchTerm.IsEmpty())
+    if (!Request.Form["search"].IsEmpty())
     {
         queryStr += "WHERE customer_name LIKE @0 ";
+        param = "%" + Request.Form["search"] + "%";
+    }
+    else if (!Request["material"].IsEmpty())
+    {
+        queryStr += "WHERE material = @0 ";
+        param = Request["material"];
     }
     queryStr += "ORDER BY quote_date DESC";
 
-    var selectedData = db.Query(queryStr, "%" + searchTerm + "%");
+    var selectedData = db.Query(queryStr, param);
     var grid = new WebGrid(source: selectedData, rowsPerPage: 5);
-}
+
+    var materialSelectList = new List<SelectListItem>();
+    foreach (var item in Enum.GetValues(typeof(Desk.DeskMaterial)))
+    {
+        SelectListItem tmp = new SelectListItem { Text = item.ToString(), Value = ((int)item).ToString() };
+        if (!Request["material"].IsEmpty())
+        {
+            tmp.Selected = true;
+        }
+        materialSelectList.Add(tmp);
+    }
+    }
 
 <!DOCTYPE html>
 <html>
@@ -42,45 +53,61 @@
         <div class="row search">
             <div class="col">
                 <form method="post">
-                    <div class="input-group">
-                        <input type="text" name="search"
-                               value="@Request.Form["search"]"
-                               class="form-control" placeholder="Search" />
-                        <div class="input-group-append">
-                            <button type="submit" class="btn btn-secondary">
-                                <i class="fas fa-search"></i>
-                            </button>
+                    <div class="row">
+                        <div class="col">
+                            <div class="input-group">
+                                <input type="text" name="search"
+                                       value="@Request.Form["search"]"
+                                       class="form-control" placeholder="Search by customer" />
+                                <div class="input-group-append">
+                                    <button type="submit" class="btn btn-secondary">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            @Html.DropDownList("MaterialFilter",
+                                Request["material"].IsEmpty() ? "Filter by material" : "Clear filter",
+                                materialSelectList,
+                                new { @class="form-control material-filter" })
                         </div>
                     </div>
+                    
                 </form>
             </div>
         </div>
-        <div class="row">
-            <div class="col">
-                @grid.GetHtml(
-                    tableStyle: "table table-hover quotes",
-                    columns: grid.Columns(
-                        grid.Column(format: @<input type="hidden" name="IDHidden" value="@item["id"]"/>),
-                        grid.Column(format: @<a href="~/EditQuote?id=@item.id"><i class="far fa-edit text-warning"></i></a>, canSort: false),
-                        grid.Column(columnName: "Customer"),
-                        grid.Column(columnName: "Material", format: (item) => (Desk.DeskMaterial)item["material"]),
-                        grid.Column(columnName: "Price", format: (item) => item["quote_amount"].ToString("C")),
-                        grid.Column(columnName: "Date Quoted", format: (item) => string.Format("{0:MMM dd, yyyy}", item["quote_date"])),
-                        grid.Column(format: @<a class="delete-link" href="~/DeleteQuote?id=@item.id"><i class="far fa-trash-alt text-danger"></i></a>, canSort: false)
-                 ),
-                 footerStyle: "pager",
-                 nextText: "Next",
-                 previousText: "Prev"
-             )
+        <section>
+            <div class="row">
+                <div class="col">
+                    <div class="table-responsive">
+                        @grid.GetHtml(
+                            tableStyle: "table table-hover quotes",
+                            headerStyle: "bg-dark header-tr",
+                            columns: grid.Columns(
+                                grid.Column(format: @<input type="hidden" name="IDHidden" value="@item["id"]"/>),
+                                grid.Column(columnName: "Customer"),
+                                grid.Column(columnName: "Material", format: (item) => (Desk.DeskMaterial)item["material"]),
+                                grid.Column(columnName: "Price", format: (item) => item["quote_amount"].ToString("C")),
+                                grid.Column(columnName: "Date Quoted", format: (item) => string.Format("{0:MMM dd, yyyy}", item["quote_date"])),
+                                grid.Column(format: @<a href="~/EditQuote?id=@item.id"><i class="far fa-edit text-warning"></i></a>, canSort: false, style: "text-center"),
+                                grid.Column(format: @<a class="delete-link" href="~/DeleteQuote?id=@item.id"><i class="far fa-trash-alt text-danger"></i></a>, canSort: false, style: "text-center")
+                             ),
+                             footerStyle: "pager",
+                             nextText: "Next",
+                             previousText: "Prev"
+                         )
+                    </div>
+                </div>
             </div>
-        </div>
-        <div class="row">
-            <div class="col">
-                <a href="~/AddQuote.cshtml" class="btn btn-success btn-block">
-                    <i class="fas fa-plus-circle"></i> Add Quote
-                </a>
+            <div class="row">
+                <div class="col">
+                    <a href="~/AddQuote.cshtml" class="btn btn-primary btn-block">
+                        <i class="fas fa-plus-circle"></i> Add Quote
+                    </a>
+                </div>
             </div>
-        </div>
+        </section>
     </div>
     <script src="~/js/Index.js"></script>
 </body>
