@@ -113,7 +113,7 @@
     <Content Include="css\webfonts\fa-solid-900.woff2" />
     <Content Include="AddQuote.cshtml" />
     <Content Include="DeleteQuote.cshtml" />
-    <Content Include="EditScripture.cshtml" />
+    <Content Include="EditQuote.cshtml" />
     <Content Include="index.cshtml" />
     <Content Include="js\Index.js" />
     <Content Include="js\QuoteForm.js" />
@@ -121,6 +121,7 @@
     <None Include="packages.config" />
     <Content Include="ViewQuote.cshtml" />
     <Content Include="Shared\QuoteForm.cshtml" />
+    <Content Include="Shared\Header.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

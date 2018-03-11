@@ -44,12 +44,8 @@
     @RenderPage("~/Shared/HeaderHead.cshtml")
 </head>
 <body>
+    @RenderPage("~/Shared/Header.cshtml", new { Title = "Mega Desk" })
     <div class="container">
-        <div class="row">
-            <header class="col text-center">
-                <h1>Mega Desk</h1> <img src="~/MegaDesk.png" alt="" />
-            </header>
-        </div>
         <div class="row search">
             <div class="col">
                 <form method="post">

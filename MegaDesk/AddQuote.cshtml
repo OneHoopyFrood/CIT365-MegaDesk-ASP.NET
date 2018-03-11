@@ -35,12 +35,8 @@
     @RenderPage("~/Shared/HeaderHead.cshtml")
 </head>
 <body>
+    @RenderPage("~/Shared/Header.cshtml", new { Title = "Mega Desk - Add Quote" })
     <div class="container">
-        <div class="row justify-content-center">
-            <header class="col col-lg-6">
-                <h1>Add a Scripture</h1>
-            </header>
-        </div>
         <div class="row justify-content-center">
             <div class="col col-lg-6">
                 @RenderPage("~/Shared/QuoteForm.cshtml");
@@ -49,28 +45,28 @@
     </div>
 
     <script>
-    (function () {
-        let textarea = document.querySelector("textarea[name='note']");
-        let charCount = document.getElementById("used-char");
-        let baseVal = textarea.maxLength;
-        function updateCharCount() {
-            let newVal = textarea.textLength;
-            charCount.innerText = newVal + "/" + baseVal;
+        (function () {
+            let textarea = document.querySelector("textarea[name='note']");
+            let charCount = document.getElementById("used-char");
+            let baseVal = textarea.maxLength;
+            function updateCharCount() {
+                let newVal = textarea.textLength;
+                charCount.innerText = newVal + "/" + baseVal;
 
-            // Colors!
-            charCount.classList.remove("text-warning", "text-danger", "text-muted");
-            if (newVal / baseVal > .9) {
-                charCount.classList.add("text-danger")
-            } else if (newVal / baseVal > .75) {
-                charCount.classList.add("text-warning")
-            } else {
-                charCount.classList.add("text-muted")
+                // Colors!
+                charCount.classList.remove("text-warning", "text-danger", "text-muted");
+                if (newVal / baseVal > .9) {
+                    charCount.classList.add("text-danger")
+                } else if (newVal / baseVal > .75) {
+                    charCount.classList.add("text-warning")
+                } else {
+                    charCount.classList.add("text-muted")
+                }
             }
-        }
-        textarea.addEventListener("input", updateCharCount);
-        updateCharCount();
-        document.getElementById("base-val").innerText = baseVal;
-    })();
+            textarea.addEventListener("input", updateCharCount);
+            updateCharCount();
+            document.getElementById("base-val").innerText = baseVal;
+        })();
     </script>
 </body>
 </html>
