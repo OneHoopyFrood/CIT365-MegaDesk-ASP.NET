@@ -1,5 +1,6 @@
-﻿@{ 
-
+﻿@using MegaDesk;
+@{
+    
 }
 
 <!DOCTYPE html>
@@ -10,6 +11,13 @@
     @RenderPage("~/Shared/HeaderHead.cshtml")
 </head>
 <body>
-
+    @RenderPage("~/Shared/Header.cshtml", new { Title = "View Quote" })
+    <section class="container">
+        <div class="row">
+            <div class="col">
+                
+            </div>
+        </div>
+    </section>
 </body>
 </html>

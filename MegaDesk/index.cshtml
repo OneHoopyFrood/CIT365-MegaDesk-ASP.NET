@@ -46,33 +46,28 @@
 <body>
     @RenderPage("~/Shared/Header.cshtml", new { Title = "Mega Desk" })
     <div class="container">
-        <div class="row search">
-            <div class="col">
-                <form method="post">
-                    <div class="row">
-                        <div class="col">
-                            <div class="input-group">
-                                <input type="text" name="search"
-                                       value="@Request.Form["search"]"
-                                       class="form-control" placeholder="Search by customer" />
-                                <div class="input-group-append">
-                                    <button type="submit" class="btn btn-secondary">
-                                        <i class="fas fa-search"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col">
-                            @Html.DropDownList("MaterialFilter",
-                                Request["material"].IsEmpty() ? "Filter by material" : "Clear filter",
-                                materialSelectList,
-                                new { @class="form-control material-filter" })
+        <form method="post">
+            <div class="row search">
+                <div class="col">
+                    <div class="input-group">
+                        <input type="text" name="search"
+                                value="@Request.Form["search"]"
+                                class="form-control" placeholder="Search by customer" />
+                        <div class="input-group-append">
+                            <button type="submit" class="btn btn-secondary">
+                                <i class="fas fa-search"></i>
+                            </button>
                         </div>
                     </div>
-                    
-                </form>
+                </div>
+                <div class="col">
+                    @Html.DropDownList("MaterialFilter",
+                        Request["material"].IsEmpty() ? "Filter by material" : "Clear filter",
+                        materialSelectList,
+                        new { @class="form-control material-filter" })
+                </div>
             </div>
-        </div>
+        </form>
         <section>
             <div class="row">
                 <div class="col">
