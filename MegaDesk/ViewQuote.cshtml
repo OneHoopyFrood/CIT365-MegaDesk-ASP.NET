@@ -1,23 +1,59 @@
 ﻿@using MegaDesk;
 @{
-    
+    int id = 0;
+    try
+    {
+        id = int.Parse(Request.QueryString["id"]);
+    }
+    catch
+    {
+        Response.Redirect("~/MsgPage.cshtml?msg=Invalid ID&url=/");
+    }
+
+    var db = Database.Open("MegaDeskData");
+    var queryStr = "SELECT id" +
+                    "    , customer_name " +
+                    "    , quote_amount " +
+                    "    , width " +
+                    "    , depth " +
+                    "    , num_drawers " +
+                    "    , material " +
+                    "    , production_days" +
+                    "    , quote_date " +
+                    "FROM  DeskQuotes " +
+                    "WHERE id = @0";
+
+    var deskQuote = db.QuerySingle(queryStr, id);
+
+    string customerName = deskQuote["customer_name"];
+    string quoteAmount = deskQuote["quote_amount"].ToString("C");
+    int width = deskQuote["width"];
+    int depth = deskQuote["depth"];
+    int numDrawers = deskQuote["num_drawers"];
+    string material = ((Desk.DeskMaterial)deskQuote["material"]).ToString();
+    int productionDays = deskQuote["production_days"];
+    string quoteDate = ((DateTime)deskQuote["quote_date"]).ToShortDateString();
 }
+<dl class="row">
+    <dt class="col-5">Quote for</dt>
+    <dd class="col-7">@customerName</dd>
+    <dt class="col-5">Amount</dt>
+    <dd class="col-7">@quoteAmount</dd>
+</dl>
+<h5>Desk Design Specifications</h5>
+<dl class="row">
+    <dt class="col-5">Width</dt>
+    <dd class="col-7">@width</dd>
+    <dt class="col-5">Depth</dt>
+    <dd class="col-7">@depth</dd>
+    <dt class="col-5">Number of Drawers</dt>
+    <dd class="col-7">@numDrawers</dd>
+    <dt class="col-5">Material</dt>
+    <dd class="col-7">@material</dd>
+</dl>
 
-<!DOCTYPE html>
-<html>
-<head>
-    <title>View Quote</title>
-
-    @RenderPage("~/Shared/HeaderHead.cshtml")
-</head>
-<body>
-    @RenderPage("~/Shared/Header.cshtml", new { Title = "View Quote" })
-    <section class="container">
-        <div class="row">
-            <div class="col">
-                
-            </div>
-        </div>
-    </section>
-</body>
-</html>
+<h5>Delivery Options</h5>
+<dl class="row">
+    <dt class="col-5">Days to Deliver</dt>
+    <dd class="col-7">@productionDays</dd>
+</dl>

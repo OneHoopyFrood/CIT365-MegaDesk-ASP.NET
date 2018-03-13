@@ -10,6 +10,31 @@ header{
     margin-bottom: 20px;
 }
 
+#custom_modal {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 10;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0,0,0,.6);
+    display: none;
+}
+#custom_modal > .card {
+    position: absolute;
+    top: 20vh;
+    right: 0; left: 0;
+    margin: auto;
+    max-width: 500px;
+    transition: display .5s ease-in;
+}
+
+@media (max-width: 500px) {
+    #custom_modal {
+        margin: auto 10px;
+    }
+}
+
 .quotes .header-tr a {
     color: #fff;
 }

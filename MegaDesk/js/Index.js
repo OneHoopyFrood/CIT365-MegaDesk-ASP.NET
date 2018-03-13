@@ -3,13 +3,25 @@
     document.querySelectorAll(".quotes tr").forEach((tr) => {
         tr.addEventListener("click", (e) => {
             let id;
+            let modal = document.getElementById("custom_modal");
             let idCol = e.currentTarget.querySelector("td:first-child input");
             if (idCol && idCol.value) {
                 id = idCol.value;
-                window.location = "/ViewQuote.cshtml?id=" + id;
+                let url = "/ViewQuote.cshtml?id=" + id;
+                fetch(url)
+                    .then((res) => {
+                        return res.text();
+                    })
+                    .then((res) => {
+                        modal.querySelector(".content").innerHTML = res;
+                        modal.style.display = "block";
+                    });
             } else {
                 console.error("Failed to get ID value")
             }
+            modal.querySelector(".close").addEventListener("click", (e) => {
+                modal.style.display = "none";
+            });
         });
     });
 
