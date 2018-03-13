@@ -1,38 +1,90 @@
-﻿@if (@Page.showError)
-{
-    <div class="alert alert-danger">Error! Something went wrong while saving.</div>
+﻿@using MegaDesk;
+@{
+    var materialSelectList = new List<SelectListItem>();
+    foreach (var item in Enum.GetValues(typeof(Desk.DeskMaterial)))
+    {
+        SelectListItem tmp = new SelectListItem { Text = item.ToString(), Value = ((int)item).ToString() };
+        if (Page.material == tmp.Value)
+        {
+            tmp.Selected = true;
+        }
+        materialSelectList.Add(tmp);
+    }
 }
 
-<form method="POST" class="add-scripture-form">
-    (.form-group>label+input[name,value].form-control)
+@if (Page.showError == true)
+{
+    <div class="alert alert-danger">
+        Error! Something went wrong while saving.
+        @if(Page.errorMsg != null)
+        {
+            <p>@Page.errorMsg</p>
+        }
+    </div>
+}
 
-    <div class="form-group">
-        <label></label>
-        <input type="" value="" name,value="" class="form-control" />
-    </div>
-
-    <div class="form-group">
-        <label>Book</label>
-        <input class="form-control" type="text" name="book" value="@Page.DeskQuote." maxlength="256" />
-        <small class="form-text text-danger">@Html.ValidationMessage("book")</small>
-    </div>
-    <div class="form-group">
-        <label>Chapter</label>
-        <input class="form-control" type="number" name="chapter" value="@Request.Form["chapter"]" />
-        <small class="form-text text-danger">@Html.ValidationMessage("chapter")</small>
-    </div>
-    <div class="form-group">
-        <label>Verse(s)</label>
-        <input class="form-control" type="text" name="verse" value="@Request.Form["verse"]" maxlength="8" />
-        <small class="form-text text-danger">@Html.ValidationMessage("verse")</small>
-    </div>
-    <div class="form-group">
-        <label>Note</label>
-        <textarea name="note" cols="30" rows="4" maxlength="500" class="form-control">@Request.Form["note"]</textarea>
-        <div class="row">
-            <div class="col"><small class="form-text text-muted">Limit <span id="base-val">??</span> charecters</small></div>
-            <div class="col"><small class="form-text text-muted text-right" id="used-char"></small></div>
+    <form method="POST" class="add-scripture-form">
+        <div class="form-group">
+            <label>Customer Name</label>
+            <input type="text" class="form-control"
+                   value="@Page.customerName" name="customer_name" />
         </div>
-    </div>
-    <div class="form-group"><button type="submit" class="btn btn-primary btn-block">Save</button></div>
-</form>
+        <h3>Desk Design</h3>
+        <div class="form-group">
+            <label>Width</label>
+            <input type="number" class="form-control"
+                   value="@Page.width" name="width" />
+        </div>
+        <div class="form-group">
+            <label>Depth</label>
+            <input type="number" class="form-control"
+                   value="@Page.depth" name="depth" />
+        </div>
+        <div class="form-group">
+            <label>Number of drawers</label>
+            <input type="number" class="form-control"
+                   value="@Page.numDrawers" name="num_drawers" />
+        </div>
+        <div class="form-group">
+            <label>Material</label>
+            @Html.DropDownList("material",
+              "Select Material",
+              materialSelectList,
+              new { @class = "form-control" })
+        </div>
+        <div class="form-check">
+            <input type="checkbox" class="form-check-input" id="rush" 
+                @if(Page.rushOptions != "" && Page.rushOptions != "14") { 
+                    @:checked 
+                } />
+            <label class="form-check-label">Rush Delivery?</label>
+        </div>
+        <div class="form-group">
+            <label>Days to delivery</label>
+            <select name="rush_options" class="form-control" disabled>
+                <option value="3"
+                    @if(Page.rushOptions == "3") {
+                        @:selected 
+                    }>3</option>
+                <option value="5"
+                    @if(Page.rushOptions == "5") {
+                        @:selected 
+                    }>5</option>
+                <option value="7"
+                    @if(Page.rushOptions == "7") {
+                        @:selected 
+                    }>7</option>
+            </select>
+        </div>
+        <button class="btn btn-primary btn-block">Save</button>
+    </form>
+    <script>
+        (function () {
+            let rushCheck = document.getElementById("rush");
+            rushCheck.addEventListener("change", setRushOptions);
+            function setRushOptions() {
+                document.querySelector("[name=rush_options]").disabled = !rushCheck.checked;
+            }
+            setRushOptions();
+        })();
+    </script>

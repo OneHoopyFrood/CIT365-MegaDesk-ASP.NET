@@ -10,8 +10,8 @@
     }
 
     var db = Database.Open("MegaDeskData");
-    var query = "DELETE FROM Scriptures WHERE id = @0";
+    var query = "DELETE FROM DeskQuotes WHERE id = @0";
     db.Execute(query, id);
 
-    Response.Redirect("~/MsgPage.cshtml?msg=Scripture entry deleted!&url=/");
+    Response.Redirect("~/MsgPage.cshtml?msg=Quote deleted&url=/");
 }

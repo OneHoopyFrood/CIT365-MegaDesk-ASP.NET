@@ -28,13 +28,13 @@
     foreach (var item in Enum.GetValues(typeof(Desk.DeskMaterial)))
     {
         SelectListItem tmp = new SelectListItem { Text = item.ToString(), Value = ((int)item).ToString() };
-        if (!Request["material"].IsEmpty())
+        if (!Request["material"].IsEmpty() && Request["material"] == tmp.Value)
         {
             tmp.Selected = true;
         }
         materialSelectList.Add(tmp);
     }
-    }
+ }
 
 <!DOCTYPE html>
 <html>

@@ -40,7 +40,7 @@ namespace MegaDesk
         {
             if (!rushAdditionalCost.Any())
             {
-                var rushOrderPrices = File.ReadAllLines("rushOrderPrices.txt").Select(l => int.Parse(l)).ToArray();
+                var rushOrderPrices = new int[] { 60, 70, 80, 40, 50, 60, 30, 35, 40 };
 
                 rushAdditionalCost.Add(3, new int[] { rushOrderPrices[0], rushOrderPrices[1], rushOrderPrices[2] });
                 rushAdditionalCost.Add(5, new int[] { rushOrderPrices[3], rushOrderPrices[4], rushOrderPrices[5] });

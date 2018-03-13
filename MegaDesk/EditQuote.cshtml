@@ -1,16 +1,8 @@
-﻿@{ 
+﻿@using MegaDesk
+@{
     bool error = false;
-
-    Validation.RequireField("book", "You must enter a book");
-    Validation.RequireField("chapter", "You must enter a chapter");
-    Validation.RequireField("verse", "You must enter a verse");
-
-    int id = -1;
-    string book = "";
-    int chapter = 0;
-    string verse = "";
-    string note = "";
-
+    string errorMsg = null;
+    int id = 0;
     try
     {
         id = int.Parse(Request.QueryString["id"]);
@@ -20,114 +12,121 @@
         Response.Redirect("~/MsgPage.cshtml?msg=Invalid ID&url=/");
     }
 
+    Validation.RequireField("customer_name", "Required");
+    Validation.RequireField("width", "Required");
+    Validation.Add("width", Validator.Integer("Must be a number"));
+    Validation.Add("width", Validator.Range(24, 96, "Must be between 24 and 96."));
+    Validation.RequireField("depth", "Required");
+    Validation.Add("depth", Validator.Integer("Must be a number"));
+    Validation.Add("depth", Validator.Range(12, 48, "Must be between 12 and 48."));
+    Validation.RequireField("num_drawers", "Required");
+    Validation.Add("num_drawers", Validator.Integer("Must be a number"));
+    Validation.Add("num_drawers", Validator.Range(0, 7, "Must be less than 8."));
+    Validation.RequireField("material", "Required");
+    Validation.Add("rush_options", Validator.Regex("^(3|5|7|14)", "Must be 3, 5, 7, or 14"));
+
+    string view_customerName = "";
+    string view_quoteAmount = "";
+    string view_width = "";
+    string view_depth = "";
+    string view_numDrawers = "";
+    string view_material = "";
+    string view_productionDays = "";
+    string view_quoteDate = "";
+
     if (IsPost)
     {
         if (Validation.IsValid())
         {
-            book = Request.Form["book"];
-            chapter = int.Parse(Request.Form["chapter"]);
-            verse = Request.Form["verse"];
-            note = Request.Form["note"];
+            var customer_name = Request.Form["customer_name"];
+            int width = int.Parse(Request.Form["width"]);
+            int depth = int.Parse(Request.Form["depth"]);
+            int num_drawers = int.Parse(Request.Form["num_drawers"]);
+            var material = (MegaDesk.Desk.DeskMaterial)int.Parse(Request.Form["material"]);
+            int rush_options = int.Parse(Request.Form["rush_options"].IsEmpty() ? "14" : Request.Form["rush_options"]);
 
-            var db = Database.Open("MegaDeskData");
-            var insertCommand = "UPDATE Scriptures " +
-                                "SET book = @0" +
-                                "  , chapter = @1" +
-                                "  , verse = @2" +
-                                "  , note = @3" +
-                                " WHERE id = @4";
-            db.Execute(insertCommand, book, chapter, verse, note, id);
+            try
+            {
+                var dq = new MegaDesk.DeskQuote(customer_name, width, depth, num_drawers, material, rush_options);
 
-            Response.Redirect("~/MsgPage.cshtml?msg=Save Successful!&url=/");
+                var db = Database.Open("MegaDeskData");
+                var insertCommand = "UPDATE DeskQuotes" +
+                                    "   SET customer_name = @0" +
+                                    "     , width = @1" +
+                                    "     , depth = @2" +
+                                    "     , num_drawers = @3" +
+                                    "     , material = @4" +
+                                    "     , production_days = @5" +
+                                    "     , quote_amount = @6" +
+                                    " WHERE id = @7";
+                db.Execute(insertCommand, customer_name, width, depth, num_drawers, material, rush_options, dq.QuoteAmount, id);
+
+                Response.Redirect("~/MsgPage.cshtml?msg=Save Successful!&url=/");
+            }
+            catch (Exception ex)
+            {
+                error = true;
+                errorMsg = ex.Message;
+            }
         }
         else
         {
             error = true;
         }
-    } else
+    }
+    else
     {
         var db = Database.Open("MegaDeskData");
-        var query = "SELECT * FROM Scriptures WHERE id = @0";
-        var result = db.QuerySingle(query, id);
+        var queryStr = "SELECT id" +
+                        "    , customer_name " +
+                        "    , quote_amount " +
+                        "    , width " +
+                        "    , depth " +
+                        "    , num_drawers " +
+                        "    , material " +
+                        "    , production_days" +
+                        "    , quote_date " +
+                        "FROM  DeskQuotes " +
+                        "WHERE id = @0";
 
-        book = result["book"];
-        chapter = result["chapter"];
-        verse = result["verse"];
-        note = result["note"];
+        var deskQuote = db.QuerySingle(queryStr, id);
+
+        view_customerName = deskQuote["customer_name"];
+        view_width = deskQuote["width"].ToString();
+        view_depth = deskQuote["depth"].ToString();
+        view_numDrawers = deskQuote["num_drawers"].ToString();
+        view_material = deskQuote["material"].ToString();
+        view_productionDays = deskQuote["production_days"].ToString();
     }
+
+    var pageObj = new
+    {
+        showError = error,
+        errorMsg = errorMsg,
+        customerName = Request.Form["customer_name"].IsEmpty() ? view_customerName : Request.Form["customer_name"],
+        width = Request.Form["width"].IsEmpty() ? view_width : Request.Form["width"],
+        depth = Request.Form["depth"].IsEmpty() ? view_depth : Request.Form["depth"],
+        numDrawers = Request.Form["num_drawers"].IsEmpty() ? view_numDrawers : Request.Form["num_drawers"],
+        material = Request.Form["material"].IsEmpty() ? view_material : Request.Form["material"],
+        rushOptions = Request.Form["rush_options"].IsEmpty() ? view_productionDays : Request.Form["rush_options"]
+    };
 }
 
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Add Scripture</title>
+    <title>Add Quote</title>
 
     @RenderPage("~/Shared/HeaderHead.cshtml")
 </head>
 <body>
-    @RenderPage("~/Shared/Header.cshtml", new { Title = "Mega Desk - Edit Quote" })
+    @RenderPage("~/Shared/Header.cshtml", new { Title = "Mega Desk - Add Quote" })
     <div class="container">
         <div class="row justify-content-center">
             <div class="col col-lg-6">
-                @if (error)
-                {
-                    <div class="alert alert-danger">Error! Something went wrong while saving your new scripture entry.</div>
-                }
-
-                <form method="POST" class="add-scripture-form">
-                    <div class="form-group">
-                        <label>Book</label>
-                        @* Normally, I'd make this a select and have a table with all the books, but that seems overkill for this assignment *@
-                        <input class="form-control" type="text" name="book" value="@book" maxlength="256" />
-                        <small class="form-text text-danger">@Html.ValidationMessage("book")</small>
-                    </div>
-                    <div class="form-group">
-                        <label>Chapter</label>
-                        <input class="form-control" type="number" name="chapter" value="@chapter" />
-                        <small class="form-text text-danger">@Html.ValidationMessage("chapter")</small>
-                    </div>
-                    <div class="form-group">
-                        <label>Verse(s)</label>
-                        <input class="form-control" type="text" name="verse" value="@verse" maxlength="8" />
-                        <small class="form-text text-danger">@Html.ValidationMessage("verse")</small>
-                    </div>
-                    <div class="form-group">
-                        <label>Note</label>
-                        <textarea name="note" cols="30" rows="4" maxlength="500" class="form-control">@note</textarea>
-                        <div class="row">
-                            <div class="col"><small class="form-text text-muted">Limit <span id="base-val">??</span> charecters</small></div>
-                            <div class="col"><small class="form-text text-muted text-right" id="used-char"></small></div>
-                        </div>
-                    </div>
-                    <div class="form-group"><button type="submit" class="btn btn-primary btn-block">Save</button></div>
-                </form>
+                @RenderPage("~/Shared/QuoteForm.cshtml", pageObj)
             </div>
         </div>
     </div>
-
-    <script>
-        (function () {
-            let textarea = document.querySelector("textarea[name='note']");
-            let charCount = document.getElementById("used-char");
-            let baseVal = textarea.maxLength;
-            function updateCharCount() {
-                let newVal = textarea.textLength;
-                charCount.innerText = newVal + "/" + baseVal;
-
-                // Colors!
-                charCount.classList.remove("text-warning", "text-danger", "text-muted");
-                if (newVal / baseVal > .9) {
-                    charCount.classList.add("text-danger")
-                } else if (newVal / baseVal > .75) {
-                    charCount.classList.add("text-warning")
-                } else {
-                    charCount.classList.add("text-muted")
-                }
-            }
-            textarea.addEventListener("input", updateCharCount);
-            updateCharCount();
-            document.getElementById("base-val").innerText = baseVal;
-        })();
-    </script>
 </body>
 </html>
